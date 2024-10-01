@@ -1,8 +1,11 @@
-"use client"
+"use client";
 import { useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export function Addmovie() {
+  const router = useRouter();
+
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
 
@@ -12,6 +15,7 @@ export function Addmovie() {
       releaseDate: date,
     });
     console.log(response);
+    router.push("/");
   }
 
   return (
