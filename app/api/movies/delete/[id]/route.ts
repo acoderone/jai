@@ -4,6 +4,8 @@ import prisma from '../../../../../prisma/PrismaClient'; // Adjust the import pa
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   const { id } = params;
 
+  console.log('Received ID for deletion:', id); // Add this line for debugging
+
   // Check if ID is valid
   if (!id || typeof id !== 'string') {
     return NextResponse.json({ error: 'Invalid movie ID' }, { status: 400 });

@@ -7,7 +7,7 @@ import axios from "axios";
 interface MyMovies {
   id: string;
   name: string;
-  releaseDate: Date | null;
+  releaseDate: Date|null;
   averageRating?: number;
 }
 
@@ -34,9 +34,14 @@ export function Main() {
   }, []);
 
   async function handleDeleteMovie(id: string) {
+    console.log('Deleting movie with ID:', id);
     try {
-      await axios.delete(`http://localhost:3000/api/movies/delete/${id}`);
-      setData((prevData) => prevData.filter((movie) => movie.id !== id));
+      const response = await axios.delete(`http://localhost:3000/api/movies/delete/${id}`);
+      if (response.status === 204) {
+        setData((prevData) => prevData.filter((movie) => movie.id !== id));
+      } else {
+        console.error("Unexpected response:", response);
+      }
     } catch (error) {
       console.error("Error deleting movie:", error);
     }
@@ -45,19 +50,17 @@ export function Main() {
   function handleEditMovie(movie: MyMovies) {
     setEditingMovie(movie);
     setMovieName(movie.name);
+    setReleaseDate(new Date(movie.releaseDate));
     setIsModalOpen(true); // Open the modal
   }
 
   async function handleUpdateMovie() {
     if (editingMovie) {
       try {
-        await axios.put(
-          `http://localhost:3000/api/movies/edit/${editingMovie.id}`,
-          {
-            name: movieName,
-            releaseDate: releaseDate?.toISOString(), // Send as string in ISO format
-          }
-        );
+        await axios.put(`http://localhost:3000/api/movies/edit/${editingMovie.id}`, {
+          name: movieName,
+          releaseDate: releaseDate?.toISOString(), // Send as string in ISO format
+        });
         // Update state with edited movie
         setData((prevData) =>
           prevData.map((movie) =>
@@ -105,7 +108,7 @@ export function Main() {
             />
             <input
               type="date"
-              value={releaseDate ? releaseDate.toISOString().split("T")[0] : ""}
+              value={releaseDate ? releaseDate.toISOString().split('T')[0] : ''}
               onChange={(e) => setReleaseDate(new Date(e.target.value))}
               className="border rounded p-2 mb-2 w-full"
             />
@@ -116,7 +119,10 @@ export function Main() {
               >
                 Update Movie
               </button>
-              <button onClick={closeModal} className="bg-gray-300 rounded p-2">
+              <button
+                onClick={closeModal}
+                className="bg-gray-300 rounded p-2"
+              >
                 Cancel
               </button>
             </div>
@@ -126,10 +132,7 @@ export function Main() {
 
       <div className="grid grid-cols-3 gap-16">
         {data.map((movie) => (
-          <div
-            key={movie.id}
-            className="bg-indigo-200 px-8 py-8 flex flex-col gap-2"
-          >
+          <div key={movie.id} className="bg-indigo-200 px-8 py-8 flex flex-col gap-2">
             <div className="text-xl font-semibold">{movie.name}</div>
             <div className="text-lg italic">
               Released: {new Date(movie.releaseDate).toLocaleDateString()}
@@ -138,7 +141,7 @@ export function Main() {
             <div className="flex justify-end gap-2">
               <Eye
                 onClick={() => {
-                  router.push(`/reviews?id=${movie.id}`); // Pass the movie ID as a query parameter
+                  router.push("/reviews");
                 }}
                 className="text-gray-600 hover:text-black cursor-pointer"
                 size={20}
